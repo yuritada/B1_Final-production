@@ -1,71 +1,32 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
-from db import get_db_connection, close_db_connection
+from flask import Blueprint, render_template, request, redirect, session
+from db import insert_user ,get_user_by_username
 
-auth_bp = Blueprint('auth', __name__)
+auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    """ユーザー登録"""
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
-        # データベース接続
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # ユーザーが既に存在するかチェック
-        cursor.execute("SELECT * FROM user_map WHERE username = ?", (username,))
-        existing_user = cursor.fetchone()
-
-        if existing_user:
-            return "このユーザー名はすでに使われています"
-        
-        # 新しいユーザーをデータベースに挿入
-        cursor.execute("INSERT INTO user_map (username, password) VALUES (?, ?)", (username, password))
-        conn.commit()
-
-        # ユーザーIDを取得
-        cursor.execute("SELECT user_id FROM user_map WHERE username = ?", (username,))
-        user_id = cursor.fetchone()[0]
-
-
-        # 接続を閉じる
-        close_db_connection(conn)
-
-        session['user_id'] = user_id
-
-        return redirect(url_for('reviews.profile'))  # ログインページにリダイレクト
-
-    return render_template('register.html')  # ユーザー登録フォームを表示
+        insert_user('user3', 'password3')
+        # execute_query("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+        return redirect('/auth/login')
+    return render_template('register.html')
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    """ユーザーログイン"""
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
-        # データベース接続
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT * FROM user_map WHERE username = ? AND password = ?", (username, password))
-        user = cursor.fetchone()
-
-        # 接続を閉じる
-        close_db_connection(conn)
-
+        user = get_user_by_username(username)
+        # user = fetch_one("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
         if user:
-            session['user_id'] = user[0]  # ユーザーIDをセッションに保存
-            userid = user[0]
-            return redirect(url_for('reviews.profile'))
-        else:
-            return "ログイン失敗"
-
+            session['user_id'] = user[0]
+            session['username'] = user[1]
+            return redirect('/')
     return render_template('login.html')
 
 @auth_bp.route('/logout')
 def logout():
-    session.pop('user_id', None)
-    return redirect(url_for('main.home'))
+    session.clear()
+    return redirect('/')

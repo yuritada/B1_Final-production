@@ -1,21 +1,136 @@
+<!-- <!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新しい口コミを追加</title>
+    <script>
+        function generateSpotForms() {
+            const count = parseInt(document.getElementById('itinerary-count').value, 10);
+            const container = document.getElementById('spot-forms-container');
+            container.innerHTML = ''; // Clear existing forms
+
+            for (let i = 1; i <= count; i++) {
+                const form = `
+                <div class="spot-form">
+                    <h3>${i}番目に訪れた場所</h3>
+                    <label>場所名: <input type="text" name="spot_name_${i}" required></label><br>
+                    <label>アクセス評価: <input type="number" name="access_rating_${i}" min="1" max="10" required></label><br>
+                    <label>体験評価: <input type="number" name="experience_rating_${i}" min="1" max="10" required></label><br>
+                    <label>価格評価: <input type="number" name="price_rating_${i}" min="1" max="10" required></label><br>
+                    <label>画像を追加: <input type="file" name="images_${i}" multiple></label><br>
+                    <label>場所 (位置情報):</label>
+                    <input type="text" name="location_${i}" placeholder="地図上をクリック" readonly>
+                    <button type="button" onclick="useCurrentLocation(${i})">現在地を使用</button>
+                </div>
+                <hr>
+                `;
+                container.innerHTML += form;
+            }
+        }
+
+        function useCurrentLocation(index) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    document.querySelector(`input[name="location_${index}"]`).value =
+                        `${position.coords.latitude}, ${position.coords.longitude}`;
+                });
+            } else {
+                alert("位置情報が取得できません。");
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>新しい口コミを追加</h1>
+    <form action="/reviews/add" method="POST" enctype="multipart/form-data">
+        <label>旅タイトル: <input type="text" name="trip_title" required></label><br>
+        <label>行程数: <input type="number" id="itinerary-count" name="itinerary_count" min="1" required></label>
+        <button type="button" onclick="generateSpotForms()">行程を追加</button><br><br>
+        
+        <div id="spot-forms-container"></div>
+
+        <button type="submit">追加する</button>
+    </form>
+</body>
+</html> -->
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>新しい口コミを投稿する</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新しい口コミを追加</title>
+    <script>
+        function generateSpotForms() {
+            const count = parseInt(document.getElementById('itinerary-count').value, 10);
+            const container = document.getElementById('spot-forms-container');
+            container.innerHTML = ''; // Clear existing forms
+
+            for (let i = 1; i <= count; i++) {
+                const form = `
+                <div class="spot-form">
+                    <h3>${i}番目に訪れた場所</h3>
+                    <label>場所名: <input type="text" name="spot_name_${i}" required></label><br>
+                    <label>アクセス評価: <input type="number" name="access_rating_${i}" min="1" max="10" required></label><br>
+                    <label>体験評価: <input type="number" name="experience_rating_${i}" min="1" max="10" required></label><br>
+                    <label>価格評価: <input type="number" name="price_rating_${i}" min="1" max="10" required></label><br>
+                    <label>画像を追加: <input type="file" name="images_${i}" multiple onchange="previewImages(event, ${i})"></label><br>
+                    <div id="image-preview-${i}"></div><br>
+                    <label>場所 (位置情報):</label>
+                    <input type="text" name="location_${i}" placeholder="地図上をクリック" readonly>
+                    <button type="button" onclick="useCurrentLocation(${i})">現在地を使用</button>
+                </div>
+                <hr>
+                `;
+                container.innerHTML += form;
+            }
+        }
+
+        function useCurrentLocation(index) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    document.querySelector(`input[name="location_${index}"]`).value =
+                        `${position.coords.latitude}, ${position.coords.longitude}`;
+                });
+            } else {
+                alert("位置情報が取得できません。");
+            }
+        }
+
+        // 画像プレビューを表示する関数
+        function previewImages(event, index) {
+            const previewContainer = document.getElementById(`image-preview-${index}`);
+            previewContainer.innerHTML = ''; // Clear any previous previews
+
+            const files = event.target.files;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.maxWidth = '150px'; // プレビュー画像の最大幅
+                    img.style.margin = '5px'; // 画像の間隔
+                    previewContainer.appendChild(img);
+                }
+
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
 </head>
 <body>
-    <h1>新しい口コミを投稿する</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <label>訪れた場所: <input type="text" name="visited" required></label><br>
-        <label>場所の評価（1～10）: <input type="number" name="place" min="1" max="10" required></label><br>
-        <label>態度の評価（1～10）: <input type="number" name="attitude" min="1" max="10" required></label><br>
-        <label>価格の評価（1～10）: <input type="number" name="price" min="1" max="10" required></label><br>
-        <label>スピードの評価（1～10）: <input type="number" name="speed" min="1" max="10" required></label><br>
-        <label>画像をアップロード: <input type="file" name="image" accept="image/*"></label><br>
-        <button type="submit">投稿する</button>
+    <h1>新しい口コミを追加</h1>
+    <form action="/reviews/add" method="POST" enctype="multipart/form-data">
+        <label>旅タイトル: <input type="text" name="trip_title" required></label><br>
+        <label>行程数: <input type="number" id="itinerary-count" name="itinerary_count" min="1" required></label>
+        <button type="button" onclick="generateSpotForms()">行程を追加</button><br><br>
+        
+        <div id="spot-forms-container"></div>
+
+        <button type="submit">追加する</button>
     </form>
-    <p><a href="{{ url_for('main.home') }}">口コミ一覧に戻る</a></p>
 </body>
 </html>

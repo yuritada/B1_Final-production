@@ -11,29 +11,27 @@
 
         <!-- ユーザーの口コミ評価一覧 -->
         <h2>口コミ一覧</h2>
-        {% if evaluation %}
+        {% if response %}
         <table>
             <thead>
                 <tr>
-                    <th>訪れた場所</th>
-                    <th>場所の評価</th>
-                    <th>態度の評価</th>
-                    <th>価格の評価</th>
-                    <th>スピードの評価</th>
                     <th>画像</th>
+                    <th>訪れた場所</th>
+                    <th>投稿主</th>
+                    <th>旅ブログ名</th>
                 </tr>
             </thead>
             <tbody>
-                {% for evaluation in evaluation %}
+                {% for response in response %}
                 <tr>
-                    <td>{{ evaluation[2] }}</td>
-                    <td>{{ evaluation[3] }}</td>
-                    <td>{{ evaluation[4] }}</td>
-                    <td>{{ evaluation[5] }}</td>
-                    <td>{{ evaluation[6] }}</td>
+                    <td>{{ response[3] }}</td>
+                    <td>{{ response[3] }}</td>
+                    <td>{{ response[3] }}</td>
+                    <td>{{ response[3] }}</td>
+                    <td>{{ response[3] }}</td>
                     <td>
-                        {% if evaluation[7] %}
-                        <img src="{{ url_for('static', filename=evaluation[7].split('static/')[1]) }}" alt="Review Image" width="100"> 
+                        {% if response[1] %}
+                        <img src="{{ url_for('static', filename=response[1].split('static/')[1]) }}" alt="Review Image" width="100">
                         {% else %}
                         画像なし
                         {% endif %}
@@ -46,7 +44,7 @@
         <p>まだ口コミがありません。</p>
         {% endif %}
         <div class="actions">
-            <a href="{{ url_for('reviews.add') }}" class="btn">新しい口コミを書く</a> 
+            <a href="{{ url_for('reviews.add_review') }}" class="btn">新しい口コミを書く</a> 
             <a href="{{ url_for('reviews.profile') }}" class="btn">自分の口コミに戻る</a>
             <a href="{{ url_for('auth.login') }}" class="btn logout-btn">ログイン</a>
         </div>

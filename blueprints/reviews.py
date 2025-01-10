@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, session
+from flask import Blueprint, render_template, redirect, request, session
 from db import insert_travel_log ,insert_spot ,insert_image ,select_from_table ,get_travel_logs_by_user
 import os
 from werkzeug.utils import secure_filename
